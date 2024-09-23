@@ -2,7 +2,7 @@
 
 const checkLoggedIn = (req, res, next) => {
   // Select fields other than __v, createdAt, and updatedAt
-  let select = "-__v -createdAt -updatedAt";
+  let select = "-__v -updatedAt";
 
   const isLoggedIn = true;
 

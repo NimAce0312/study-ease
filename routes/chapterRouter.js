@@ -10,7 +10,7 @@ const uploader = require("../utils/uploader");
 
 const chapterRouter = express.Router();
 
-const upload = uploader("company");
+const upload = uploader("chapter");
 
 chapterRouter.get("/", getChapter);
 chapterRouter.post("/", protect, upload.single("image"), addChapter);
