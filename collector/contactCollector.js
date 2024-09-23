@@ -32,11 +32,15 @@ const getContact = async (req, res, next) => {
 const addContact = async (req, res, next) => {
   try {
     // Get data from request
-    const { name, email, subject, message } = req.body;
+    const { first_name, last_name, phone, address, email, subject, message } =
+      req.body;
 
     // Check if Contact already exists
     const ContactExists = await Contact.findOne({
-      name,
+      first_name,
+      last_name,
+      phone,
+      address,
       email,
       subject,
       message,
@@ -48,7 +52,10 @@ const addContact = async (req, res, next) => {
 
     // Create new Contact
     const newContact = await Contact.create({
-      name,
+      first_name,
+      last_name,
+      phone,
+      address,
       email,
       subject,
       message,

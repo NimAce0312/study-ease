@@ -48,7 +48,7 @@ const forgotPassword = async (req, res, next) => {
     const message = `
         <p>Dear ${userCred.name},</p>
 
-        <p>We have received a request to reset the password for your account associated with SolveNepal. If you did not initiate this request, please disregard this email. However, if you did request a password reset, please follow the instructions below to set a new password:</p>
+        <p>We have received a request to reset the password for your account associated with StudyEase. If you did not initiate this request, please disregard this email. However, if you did request a password reset, please follow the instructions below to set a new password:</p>
 
         <p>1. Click on the following link to proceed with the password reset process: <a href="${resetUrl}">${resetUrl}</a></p>
 
@@ -58,7 +58,7 @@ const forgotPassword = async (req, res, next) => {
 
         <p>Thank you for your attention to this matter.</p>
 
-        <p>Best regards,<br>SolveNepal Team</p>
+        <p>Best regards,<br>StudyEase Team</p>
     `;
 
     try {
