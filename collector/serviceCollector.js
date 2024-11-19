@@ -87,9 +87,9 @@ const editService = async (req, res, next) => {
     let image, oldImage;
     // Get image file path from the uploaded file
     if (req.file) {
-      image = req.file.path;
+      image = req.file.filename;
       oldImage = searchService.image;
-      searchService.image = image;
+      req.body.image = image;
     }
 
     // Update service data
@@ -107,11 +107,12 @@ const editService = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Service updated",
+      data: searchService,
     });
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/service/${req.file.path}`);
+      fs.unlinkSync(`${req.file.path}`);
     }
 
     // Return error

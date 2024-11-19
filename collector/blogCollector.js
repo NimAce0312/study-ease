@@ -35,7 +35,7 @@ const getBlog = async (req, res, next) => {
 const addBlog = async (req, res, next) => {
   try {
     // Get data from request
-    const { title, publisher, intro, content } = req.body;
+    const { title, intro, content } = req.body;
 
     // Generate slug
     const slug = slugify(title, { lower: true }).replace(/[^\w\-]+/g, "");
@@ -54,7 +54,6 @@ const addBlog = async (req, res, next) => {
     const newBlog = await Blog.create({
       title,
       slug,
-      publisher,
       intro,
       content,
       image,
@@ -65,6 +64,7 @@ const addBlog = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: "Blog created",
+      data: newBlog,
     });
   } catch (error) {
     // Delete image if error occurs
@@ -88,9 +88,9 @@ const editBlog = async (req, res, next) => {
     let image, oldImage;
     // Get image file path from the uploaded file
     if (req.file) {
-      image = req.file.path;
+      image = req.file.filename;
       oldImage = searchBlog.image;
-      searchBlog.image = image;
+      req.body.image = image;
     }
 
     // Update blog data
@@ -108,11 +108,12 @@ const editBlog = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Blog updated",
+      data: searchBlog,
     });
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/blog/${req.file.path}`);
+      fs.unlinkSync(`${req.file.path}`);
     }
 
     // Return error

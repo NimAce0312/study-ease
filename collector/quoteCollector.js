@@ -35,7 +35,7 @@ const getQuote = async (req, res, next) => {
 const addQuote = async (req, res, next) => {
   try {
     // Get data from request
-    const { title, by, intro, content } = req.body;
+    const { title, by,  content } = req.body;
 
     // Generate slug
     const slug = slugify(title, { lower: true }).replace(/[^\w\-]+/g, "");
@@ -55,7 +55,6 @@ const addQuote = async (req, res, next) => {
       title,
       slug,
       by,
-      intro,
       content,
       image,
     });
@@ -88,9 +87,9 @@ const editQuote = async (req, res, next) => {
     let image, oldImage;
     // Get image file path from the uploaded file
     if (req.file) {
-      image = req.file.path;
+      image = req.file.filename;
       oldImage = searchQuote.image;
-      searchQuote.image = image;
+      req.body.image = image;
     }
 
     // Update quote data
@@ -108,11 +107,12 @@ const editQuote = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Quote updated",
+      data: searchQuote,
     });
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/quote/${req.file.path}`);
+      fs.unlinkSync(`${req.file.path}`);
     }
 
     // Return error

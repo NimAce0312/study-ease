@@ -17,6 +17,10 @@ const classSchema = new mongoose.Schema(
     intro: {
       type: String,
     },
+    content:{
+      type: String,
+      required: [true, "Please provide a content"],
+    }
   },
   {
     timestamps: true,

@@ -35,7 +35,7 @@ const getClass = async (req, res, next) => {
 const addClass = async (req, res, next) => {
   try {
     // Get data from request
-    const { subjectId, title, intro, content } = req.body;
+    const { title, intro, content } = req.body;
 
     // Generate slug
     const slug = slugify(title, { lower: true }).replace(/[^\w\-]+/g, "");
@@ -52,7 +52,6 @@ const addClass = async (req, res, next) => {
 
     // Create new class
     const newClass = await Class.create({
-      subjectId,
       title,
       slug,
       intro,
@@ -65,6 +64,7 @@ const addClass = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: "Class created",
+      data: newClass,
     });
   } catch (error) {
     // Delete image if error occurs
@@ -88,10 +88,11 @@ const editClass = async (req, res, next) => {
     let image, oldImage;
     // Get image file path from the uploaded file
     if (req.file) {
-      image = req.file.path;
+      image = req.file.filename;
       oldImage = searchClass.image;
-      searchClass.image = image;
+      req.body.image = image;
     }
+    
 
     // Update class data
     updateData(searchClass, req.body);
@@ -108,11 +109,12 @@ const editClass = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Class updated",
+      data: searchClass,
     });
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/class/${req.file.path}`);
+      fs.unlinkSync(`${req.file.path}`);
     }
 
     // Return error

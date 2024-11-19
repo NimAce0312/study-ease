@@ -14,12 +14,6 @@ const blogSchema = new mongoose.Schema(
     image: {
       type: String,
     },
-    publisher: {
-      // type: mongoose.Schema.ObjectId,
-      // ref: "User",
-      type: String,
-      required: [true, "Please provide a publisher"],
-    },
     intro: {
       type: String,
     },

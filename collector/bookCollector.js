@@ -88,9 +88,9 @@ const editBook = async (req, res, next) => {
     let image, oldImage;
     // Get image file path from the uploaded file
     if (req.file) {
-      image = req.file.path;
+      image = req.file.filename;
       oldImage = searchBook.image;
-      searchBook.image = image;
+      req.body.image = image;
     }
 
     // Update book data
@@ -108,11 +108,12 @@ const editBook = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Book updated",
+      data: searchBook,
     });
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/book/${req.file.path}`);
+      fs.unlinkSync(`${req.file.path}`);
     }
 
     // Return error

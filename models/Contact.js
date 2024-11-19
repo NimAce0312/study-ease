@@ -27,7 +27,7 @@ const contactSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      required: [true, "Please provide a description"],
+      required: [true, "Please provide a message"],
     },
   },
   {

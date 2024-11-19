@@ -35,7 +35,7 @@ const getSubject = async (req, res, next) => {
 const addSubject = async (req, res, next) => {
   try {
     // Get data from request
-    const { classId, title, intro } = req.body;
+    const { classId, title, intro, content } = req.body;
 
     // Generate slug
     const slug = slugify(title, { lower: true }).replace(/[^\w\-]+/g, "");
@@ -56,6 +56,7 @@ const addSubject = async (req, res, next) => {
       title,
       slug,
       intro,
+      content,
       image,
     });
     await newSubject.save();
@@ -64,6 +65,7 @@ const addSubject = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: "Subject created",
+      data: newSubject,
     });
   } catch (error) {
     // Delete image if error occurs
@@ -87,9 +89,9 @@ const editSubject = async (req, res, next) => {
     let image, oldImage;
     // Get image file path from the uploaded file
     if (req.file) {
-      image = req.file.path;
+      image = req.file.filename;
       oldImage = searchSubject.image;
-      searchSubject.image = image;
+      req.body.image = image;
     }
 
     // Update subject data
@@ -107,11 +109,12 @@ const editSubject = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Subject updated",
+      data: searchSubject,
     });
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/subject/${req.file.path}`);
+      fs.unlinkSync(`${req.file.path}`);
     }
 
     // Return error

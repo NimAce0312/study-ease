@@ -65,6 +65,7 @@ const addChapter = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: "Chapter created",
+      data: newChapter,
     });
   } catch (error) {
     // Delete image if error occurs
@@ -88,9 +89,9 @@ const editChapter = async (req, res, next) => {
     let image, oldImage;
     // Get image file path from the uploaded file
     if (req.file) {
-      image = req.file.path;
+      image = req.file.filename;
       oldImage = searchChapter.image;
-      searchChapter.image = image;
+      req.body.image = image;
     }
 
     // Update chapter data
@@ -108,11 +109,12 @@ const editChapter = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Chapter updated",
+      data: searchChapter,
     });
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/chapter/${req.file.path}`);
+      fs.unlinkSync(`${req.file.path}`);
     }
 
     // Return error

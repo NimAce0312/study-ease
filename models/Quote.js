@@ -18,9 +18,6 @@ const qutoeSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide a quote by"],
     },
-    intro: {
-      type: String,
-    },
     content: {
       type: String,
       required: [true, "Please provide a content"],

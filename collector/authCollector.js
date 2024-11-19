@@ -2,18 +2,25 @@ const slugify = require("slugify");
 
 const UserCred = require("../models/UserCred");
 const ErrorResponse = require("../utils/errorResponse");
-// const sendEmail = require("../utils/sendEmail");
+const sendEmail = require("../utils/sendMail");
 const crypto = require("crypto");
 
 const login = async (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email) {
-    return next(new ErrorResponse("Please provide an email", 400));
+  const { username, email, password } = req.body;
+  if (!username && !email) {
+    return next(
+      new ErrorResponse("Please provide an email or a username", 400)
+    );
   } else if (!password) {
     return next(new ErrorResponse("Please provide a password", 400));
   }
   try {
-    const userCred = await UserCred.findOne({ email }).select("+password");
+    let userCred;
+    if (username) {
+      userCred = await UserCred.findOne({ username }).select("+password");
+    } else {
+      userCred = await UserCred.findOne({ email }).select("+password");
+    }
 
     if (!userCred) {
       return next(new ErrorResponse("Invalid Credentials", 401));
@@ -32,6 +39,37 @@ const login = async (req, res, next) => {
   }
 };
 
+const register = async (req, res, next) => {
+  const { email, username, password } = req.body;
+
+  try {
+    const userExists =
+      (await UserCred.findOne({ email })) ||
+      (await UserCred.findOne({ username }));
+
+    if (userExists) {
+      return next(new ErrorResponse("User already exists", 400));
+    }
+
+    const newUser = await UserCred.create({
+      email,
+      username,
+      password,
+    });
+
+    await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Successfully registered",
+      data: newUser,
+    });
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+};
+
 const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
   try {
@@ -44,7 +82,7 @@ const forgotPassword = async (req, res, next) => {
 
     await userCred.save();
 
-    const resetUrl = `${process.env.CLIENT_URL}auth/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`;
     const message = `
         <p>Dear ${userCred.name},</p>
 
@@ -123,6 +161,7 @@ const sendToken = async (user, statusCode, res) => {
 
 module.exports = {
   login,
+  register,
   forgotPassword,
   resetPassword,
 };
