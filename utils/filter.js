@@ -1,6 +1,10 @@
+const { default: mongoose } = require("mongoose");
+
 const filter = (queryParams) => {
   // Initialize query object
   const query = {};
+
+  const condition = {};
 
   // Check if id is present in query parameters
   if (queryParams.id) {
@@ -26,6 +30,17 @@ const filter = (queryParams) => {
   // Map query parameters to query object
   directMappings.forEach((mapping) => {
     if (queryParams[mapping.param]) {
+      if (mapping.param === "class") {
+        if (!mongoose.Types.ObjectId.isValid(queryParams[mapping.param])) {
+          condition.class = queryParams[mapping.param];
+          return;
+        }
+      } else if (mapping.param === "subject") {
+        if (!mongoose.Types.ObjectId.isValid(queryParams[mapping.param])) {
+          condition.subject = queryParams[mapping.param];
+          return;
+        }
+      }
       query[mapping.field] = queryParams[mapping.param];
     }
   });
@@ -37,6 +52,7 @@ const filter = (queryParams) => {
   return {
     query,
     sort,
+    condition
   };
 };
 

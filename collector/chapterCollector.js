@@ -10,13 +10,32 @@ const ErrorResponse = require("../utils/errorResponse");
 const getChapter = async (req, res, next) => {
   try {
     // Get filter and sort parameters
-    const { query, sort } = filter(req.query);
+    const { query, sort, condition } = filter(req.query);
 
     // Get select fields
     const select = checkLoggedIn(req, res, next);
 
     // Find chapter based on query parameters
-    let chapter = await Chapter.find(query).select(select).sort(sort);
+    let chapter = await Chapter.find(query)
+      .select(select)
+      .sort(sort)
+      .populate({
+        path: "subjectId",
+        select: "title slug image intro",
+        populate: {
+          path: "classId",
+          select: "title slug image intro",
+        },
+      });
+
+    // Check for condition
+    if (condition.subject && condition.class) {
+      chapter = chapter.filter(
+        (item) =>
+          item.subjectId.slug === condition.subject &&
+          item.subjectId.classId.slug === condition.class
+      );
+    }
 
     // Paginate chapter
     chapter = pagination(req.query, chapter);
@@ -41,7 +60,7 @@ const addChapter = async (req, res, next) => {
     const slug = slugify(title, { lower: true }).replace(/[^\w\-]+/g, "");
 
     // Check if chapter already exists
-    const chapterExists = await Chapter.findOne({ slug });
+    const chapterExists = await Chapter.findOne({ subjectId, slug });
     // Return error if chapter already exists
     if (chapterExists) {
       return next(new ErrorResponse("Chapter already exists", 400));
@@ -70,7 +89,9 @@ const addChapter = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/chapter/${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
     // Return error
     next(error);
@@ -98,8 +119,10 @@ const editChapter = async (req, res, next) => {
     updateData(searchChapter, req.body);
 
     // Delete old image
-    if (req.file.filename && oldImage) {
-      fs.unlinkSync(`uploads/chapter/${oldImage}`);
+    if (req.file && oldImage) {
+      if (fs.existsSync(`uploads/chapter/${oldImage}`)) {
+        fs.unlinkSync(`uploads/chapter/${oldImage}`);
+      }
     }
 
     // Save chapter
@@ -114,7 +137,9 @@ const editChapter = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
 
     // Return error
@@ -136,7 +161,9 @@ const deleteChapter = async (req, res, next) => {
 
     // Delete image
     if (searchChapter.image) {
-      fs.unlinkSync(`uploads/chapter/${searchChapter.image}`);
+      if (fs.existsSync(`uploads/chapter/${searchChapter.image}`)) {
+        fs.unlinkSync(`uploads/chapter/${searchChapter.image}`);
+      }
     }
     // Return response
     res.status(200).json({

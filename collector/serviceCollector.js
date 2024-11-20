@@ -68,7 +68,9 @@ const addService = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/service/${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
     // Return error
     next(error);
@@ -96,8 +98,10 @@ const editService = async (req, res, next) => {
     updateData(searchService, req.body);
 
     // Delete old image
-    if (req.file.filename && oldImage) {
-      fs.unlinkSync(`uploads/service/${oldImage}`);
+    if (req.file && oldImage) {
+      if (fs.existsSync(`uploads/service/${oldImage}`)) {
+        fs.unlinkSync(`uploads/service/${oldImage}`);
+      }
     }
 
     // Save service
@@ -112,7 +116,9 @@ const editService = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
 
     // Return error
@@ -134,7 +140,9 @@ const deleteService = async (req, res, next) => {
 
     // Delete image
     if (searchService.image) {
-      fs.unlinkSync(`uploads/service/${searchService.image}`);
+      if (fs.existsSync(`uploads/service/${searchService.image}`)) {
+        fs.unlinkSync(`uploads/service/${searchService.image}`);
+      }
     }
     // Return response
     res.status(200).json({

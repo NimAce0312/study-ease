@@ -69,7 +69,9 @@ const addBook = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/book/${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
     // Return error
     next(error);
@@ -97,8 +99,10 @@ const editBook = async (req, res, next) => {
     updateData(searchBook, req.body);
 
     // Delete old image
-    if (req.file.filename && oldImage) {
-      fs.unlinkSync(`uploads/book/${oldImage}`);
+    if (req.file && oldImage) {
+      if (fs.existsSync(`uploads/book/${oldImage}`)) {
+        fs.unlinkSync(`uploads/book/${oldImage}`);
+      }
     }
 
     // Save book
@@ -113,7 +117,9 @@ const editBook = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
 
     // Return error
@@ -135,7 +141,9 @@ const deleteBook = async (req, res, next) => {
 
     // Delete image
     if (searchBook.image) {
-      fs.unlinkSync(`uploads/book/${searchBook.image}`);
+      if (fs.existsSync(`uploads/book/${searchBook.image}`)) {
+        fs.unlinkSync(`uploads/book/${searchBook.image}`);
+      }
     }
     // Return response
     res.status(200).json({

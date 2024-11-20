@@ -16,7 +16,6 @@ const chapterSchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-      unique: true,
       required: [true, "Please provide a slug"],
     },
     intro: {

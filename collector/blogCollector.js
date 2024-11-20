@@ -69,7 +69,9 @@ const addBlog = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/blog/${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
     // Return error
     next(error);
@@ -97,8 +99,10 @@ const editBlog = async (req, res, next) => {
     updateData(searchBlog, req.body);
 
     // Delete old image
-    if (req.file.filename && oldImage) {
-      fs.unlinkSync(`uploads/blog/${oldImage}`);
+    if (req.file && oldImage) {
+      if (fs.existsSync(`uploads/blog/${oldImage}`)) {
+        fs.unlinkSync(`uploads/blog/${oldImage}`);
+      }
     }
 
     // Save blog
@@ -113,7 +117,9 @@ const editBlog = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
 
     // Return error
@@ -135,7 +141,9 @@ const deleteBlog = async (req, res, next) => {
 
     // Delete image
     if (searchBlog.image) {
-      fs.unlinkSync(`uploads/blog/${searchBlog.image}`);
+      if (fs.existsSync(`uploads/blog/${searchBlog.image}`)) {
+        fs.unlinkSync(`uploads/blog/${searchBlog.image}`);
+      }
     }
     // Return response
     res.status(200).json({

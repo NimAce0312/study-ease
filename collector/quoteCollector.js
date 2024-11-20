@@ -35,7 +35,7 @@ const getQuote = async (req, res, next) => {
 const addQuote = async (req, res, next) => {
   try {
     // Get data from request
-    const { title, by,  content } = req.body;
+    const { title, by, content } = req.body;
 
     // Generate slug
     const slug = slugify(title, { lower: true }).replace(/[^\w\-]+/g, "");
@@ -68,7 +68,9 @@ const addQuote = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/quote/${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
     // Return error
     next(error);
@@ -96,8 +98,10 @@ const editQuote = async (req, res, next) => {
     updateData(searchQuote, req.body);
 
     // Delete old image
-    if (req.file.filename && oldImage) {
-      fs.unlinkSync(`uploads/quote/${oldImage}`);
+    if (req.file && oldImage) {
+      if (fs.existsSync(`uploads/quote/${oldImage}`)) {
+        fs.unlinkSync(`uploads/quote/${oldImage}`);
+      }
     }
 
     // Save quote
@@ -112,7 +116,9 @@ const editQuote = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
 
     // Return error
@@ -134,7 +140,9 @@ const deleteQuote = async (req, res, next) => {
 
     // Delete image
     if (searchQuote.image) {
-      fs.unlinkSync(`uploads/quote/${searchQuote.image}`);
+      if (fs.existsSync(`uploads/quote/${searchQuote.image}`)) {
+        fs.unlinkSync(`uploads/quote/${searchQuote.image}`);
+      }
     }
     // Return response
     res.status(200).json({

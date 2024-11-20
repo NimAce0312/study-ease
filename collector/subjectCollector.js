@@ -10,13 +10,21 @@ const ErrorResponse = require("../utils/errorResponse");
 const getSubject = async (req, res, next) => {
   try {
     // Get filter and sort parameters
-    const { query, sort } = filter(req.query);
+    const { query, sort, condition } = filter(req.query);
 
     // Get select fields
     const select = checkLoggedIn(req, res, next);
 
     // Find subject based on query parameters
-    let subject = await Subject.find(query).select(select).sort(sort);
+    let subject = await Subject.find(query).select(select).sort(sort).populate({
+      path: "classId",
+      select: "title slug image intro",
+    });
+
+    // Check for condition
+    if (condition.class) {
+      subject = subject.filter((item) => item.classId.slug === condition.class);
+    }
 
     // Paginate subject
     subject = pagination(req.query, subject);
@@ -41,7 +49,7 @@ const addSubject = async (req, res, next) => {
     const slug = slugify(title, { lower: true }).replace(/[^\w\-]+/g, "");
 
     // Check if subject already exists
-    const subjectExists = await Subject.findOne({ slug });
+    const subjectExists = await Subject.findOne({ classId, slug });
     // Return error if subject already exists
     if (subjectExists) {
       return next(new ErrorResponse("Subject already exists", 400));
@@ -69,7 +77,9 @@ const addSubject = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/subject/${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
     // Return error
     next(error);
@@ -97,8 +107,10 @@ const editSubject = async (req, res, next) => {
     updateData(searchSubject, req.body);
 
     // Delete old image
-    if (req.file.filename && oldImage) {
-      fs.unlinkSync(`uploads/subject/${oldImage}`);
+    if (req.file && oldImage) {
+      if (fs.existsSync(`uploads/subject/${oldImage}`)) {
+        fs.unlinkSync(`uploads/subject/${oldImage}`);
+      }
     }
 
     // Save subject
@@ -113,7 +125,9 @@ const editSubject = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
 
     // Return error
@@ -135,7 +149,9 @@ const deleteSubject = async (req, res, next) => {
 
     // Delete image
     if (searchSubject.image) {
-      fs.unlinkSync(`uploads/subject/${searchSubject.image}`);
+      if (fs.existsSync(`uploads/subject/${searchSubject.image}`)) {
+        fs.unlinkSync(`uploads/subject/${searchSubject.image}`);
+      }
     }
     // Return response
     res.status(200).json({

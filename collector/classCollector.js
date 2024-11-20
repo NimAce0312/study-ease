@@ -35,7 +35,7 @@ const getClass = async (req, res, next) => {
 const addClass = async (req, res, next) => {
   try {
     // Get data from request
-    const { title, intro} = req.body;
+    const { title, intro } = req.body;
 
     // Generate slug
     const slug = slugify(title, { lower: true }).replace(/[^\w\-]+/g, "");
@@ -68,7 +68,9 @@ const addClass = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`uploads/class/${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
     // Return error
     next(error);
@@ -91,14 +93,15 @@ const editClass = async (req, res, next) => {
       oldImage = searchClass.image;
       req.body.image = image;
     }
-    
 
     // Update class data
     updateData(searchClass, req.body);
 
     // Delete old image
-    if (req.file.filename && oldImage) {
-      fs.unlinkSync(`uploads/class/${oldImage}`);
+    if (req.file && oldImage) {
+      if (fs.existsSync(`uploads/class/${oldImage}`)) {
+        fs.unlinkSync(`uploads/class/${oldImage}`);
+      }
     }
 
     // Save class
@@ -113,7 +116,9 @@ const editClass = async (req, res, next) => {
   } catch (error) {
     // Delete image if error occurs
     if (req.file) {
-      fs.unlinkSync(`${req.file.path}`);
+      if (fs.existsSync(`${req.file.path}`)) {
+        fs.unlinkSync(`${req.file.path}`);
+      }
     }
 
     // Return error
@@ -135,7 +140,9 @@ const deleteClass = async (req, res, next) => {
 
     // Delete image
     if (searchClass.image) {
-      fs.unlinkSync(`uploads/class/${searchClass.image}`);
+      if (fs.existsSync(`uploads/class/${searchClass.image}`)) {
+        fs.unlinkSync(`uploads/class/${searchClass.image}`);
+      }
     }
     // Return response
     res.status(200).json({
