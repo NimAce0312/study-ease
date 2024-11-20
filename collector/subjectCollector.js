@@ -35,7 +35,7 @@ const getSubject = async (req, res, next) => {
 const addSubject = async (req, res, next) => {
   try {
     // Get data from request
-    const { classId, title, intro, content } = req.body;
+    const { classId, title, intro } = req.body;
 
     // Generate slug
     const slug = slugify(title, { lower: true }).replace(/[^\w\-]+/g, "");
@@ -56,7 +56,6 @@ const addSubject = async (req, res, next) => {
       title,
       slug,
       intro,
-      content,
       image,
     });
     await newSubject.save();

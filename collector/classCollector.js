@@ -35,7 +35,7 @@ const getClass = async (req, res, next) => {
 const addClass = async (req, res, next) => {
   try {
     // Get data from request
-    const { title, intro, content } = req.body;
+    const { title, intro} = req.body;
 
     // Generate slug
     const slug = slugify(title, { lower: true }).replace(/[^\w\-]+/g, "");
@@ -55,7 +55,6 @@ const addClass = async (req, res, next) => {
       title,
       slug,
       intro,
-      content,
       image,
     });
     await newClass.save();
